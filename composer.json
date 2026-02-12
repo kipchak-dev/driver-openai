@@ -1,6 +1,6 @@
 {
     "name": "kipchak/driver-openai",
-    "type": "middleware",
+    "type": "library",
     "description": "An OpenAI driver (dependency) for the Kipchak API Development Kit (ADK)",
     "keywords": [
         "APIs",
