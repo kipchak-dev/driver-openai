@@ -5,6 +5,19 @@ Symfony PSR-18 HTTP client by default.
 
 It supports multiple OpenAI connections.
 
+## Requirements
+
+- PHP 8.4 or 8.5
+- [Kipchak](https://kipchak.dev) `^2 || ^3`
+- `openai-php/client` `^0.20`
+
+## Versions
+
+- **2.0** — upgrades `openai-php/client` to `^0.20` and adds PHP 8.5 support. The driver API is unchanged; if you use `raw()` to call the client directly, review the [client changes](https://github.com/openai-php/client/releases). Requires `kipchak/core: ^2 || ^3`.
+- **1.x** — `openai-php/client` `^0.10`, `kipchak/core` `^2`.
+
+See the [Kipchak upgrade guide](https://kipchak.dev/docs/upgrades) for details.
+
 #### Composer Package
 
 `kipchak/driver-openai`
@@ -14,7 +27,7 @@ It supports multiple OpenAI connections.
 This config file should be placed in your Kipchak project's config directory, as in the starter
 project at https://1x.ax/mamluk/kipchak/starter/~files/master/config/kipchak.openai.php.
 
-The config file should look like this (also avalable in sample.config.php):
+The config file should look like this (also available in sample.config.php):
 
 ```
 <?php
@@ -80,5 +93,5 @@ Each driver defines an implementation of Kipchak's Driver Interface. Where appli
 accept a parameter for a specific instance of the driver specified as a config property, for instance, in the case
 of multiple database connections or S3 buckets.
 
-So you may access the driver by invoking \Mamluk\Kipchak\Driver\Memcached\Memcached::get('cache'), where
+So you may access the driver by invoking \Kipchak\Driver\Memcached\Memcached::get('cache'), where
 `cache` is the name of one of the memcached connection pools specified in the config file.
