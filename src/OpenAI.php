@@ -4,13 +4,39 @@ namespace Kipchak\Driver\OpenAI;
 
 use InvalidArgumentException;
 use Kipchak\Core\Interfaces;
+use GuzzleHttp\Client as GuzzleClient;
 use Kipchak\Driver\Config\Config;
+use Kipchak\Driver\Http\Http;
 use OpenAI\Contracts\ClientContract;
 use OpenAI\Factory;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Client\ClientInterface;
 
 class OpenAI implements Interfaces\Driver
 {
+    /**
+     * Guzzle options for a connection without 'http_client'. No limit on the whole request, so long streamed
+     * completions are never cut off; instead, a request is abandoned after 600 seconds without receiving data,
+     * which is how Symfony's client (this driver's transport before 2.10) times out.
+     *
+     * @return array<string, mixed>
+     */
+    public static function defaultHttpOptions(): array
+    {
+        $options = [
+            'connect_timeout' => 10,
+            'timeout' => 0,
+            'read_timeout' => 600, // honoured by Guzzle's PHP stream handler
+        ];
+
+        // Guzzle's cURL handler ignores read_timeout; cURL's low-speed limit is the same rule.
+        if (\defined('CURLOPT_LOW_SPEED_LIMIT')) {
+            $options['curl'] = [\CURLOPT_LOW_SPEED_LIMIT => 1, \CURLOPT_LOW_SPEED_TIME => 600];
+        }
+
+        return $options;
+    }
+
     protected static ContainerInterface $container;
 
     public static function initialise(ContainerInterface $container, ?string $configFileName = null): void
@@ -34,6 +60,7 @@ class OpenAI implements Interfaces\Driver
 
                     $factory = new Factory();
                     $factory = $factory->withApiKey($apiKey);
+                    $factory = $factory->withHttpClient(self::httpClient($connectionDetails));
 
                     if (!empty($connectionDetails['organization']) && method_exists($factory, 'withOrganization')) {
                         $factory = $factory->withOrganization($connectionDetails['organization']);
@@ -74,6 +101,17 @@ class OpenAI implements Interfaces\Driver
                 });
             }
         }
+    }
+
+    /**
+     * The PSR-18 client for a connection: the psr18 client named by its 'http_client' setting in kipchak.http,
+     * or a Guzzle client of its own. Guzzle's client also lets the SDK stream responses.
+     */
+    private static function httpClient(array $connectionDetails): ClientInterface
+    {
+        $name = $connectionDetails['http_client'] ?? null;
+
+        return $name === null ? new GuzzleClient(self::defaultHttpOptions()) : Http::psr18($name);
     }
 
     public static function get(?string $configKey = null): DefaultModelClient
