@@ -37,5 +37,20 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^12"
+    },
+    "extra": {
+        "kipchak": {
+            "type": "driver",
+            "config": "sample.config.php",
+            "configName": "kipchak.openai.php",
+            "initialise": "\\Kipchak\\Driver\\OpenAI\\OpenAI::initialise($container);",
+            "after": [
+                "kipchak/driver-config",
+                "kipchak/driver-logger",
+                "kipchak/driver-http"
+            ],
+            "before": [],
+            "docs": "https://kipchak.dev/docs/driver-openai"
+        }
     }
 }
