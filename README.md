@@ -25,8 +25,8 @@ See the [Kipchak upgrade guide](https://kipchak.dev/docs/upgrades) for details.
 
 #### Sample Config File:
 
-This config file should be placed in your Kipchak project's config directory, as in the starter
-project at https://1x.ax/mamluk/kipchak/starter/~files/master/config/kipchak.openai.php.
+This config file should be placed in your Kipchak project's config directory, as in the examples
+project at https://github.com/kipchak-dev/examples/blob/master/config/kipchak.openai.php.
 
 The config file should look like this (also available in sample.config.php):
 
